@@ -15,6 +15,24 @@ node server.js
 - `PUT /api/game-data`：整份驗證後儲存資料。
 - `POST /api/game/monsters/:id/defeat`：模擬怪物被擊敗，伺服器按該怪物設定計算經驗、金幣及掉落結果。
 
+## 遊戲端呼叫範例
+
+遊戲判定怪物死亡時，呼叫伺服器而不是在瀏覽器自行抽掉落：
+
+```js
+async function requestMonsterDefeat(monsterId) {
+  const response = await fetch(`/api/game/monsters/${encodeURIComponent(monsterId)}/defeat`, {
+    method: 'POST'
+  });
+  if (!response.ok) throw new Error('怪物掉落結算失敗');
+  const result = await response.json();
+  // result.exp、result.gold、result.drops 由伺服器產生
+  return result;
+}
+```
+
+回傳的 drops 每筆包含 itemId、name、kind、quantity；遊戲客戶端應把結果交給角色背包系統處理。正式多人版應由伺服器同時驗證玩家是否真的擊敗怪物，再發放獎勵。
+
 ## 掉落規則
 每項掉落機率獨立判定（0–100%）；命中後按 min/max 隨機數量。掉落 ID 必須存在於 equipment 或 items。管理器儲存時由伺服器驗證引用，遊戲端擊敗怪物時呼叫 defeat API，由伺服器回傳實際掉落。
 
