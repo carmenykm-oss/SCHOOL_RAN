@@ -59,6 +59,14 @@ const server=http.createServer(async(req,res)=>{
   if(req.method==='OPTIONS'){res.writeHead(204,{'Access-Control-Allow-Origin':'*','Access-Control-Allow-Methods':'GET,PUT,POST,OPTIONS','Access-Control-Allow-Headers':'Content-Type'});return res.end();}
   try {
     if(url.pathname==='/api/health'&&req.method==='GET') return send(res,200,{ok:true,project:'SCHOOL_RAN'});
+    if(url.pathname==='/api/projectr-drop-guide'&&req.method==='GET'){
+      const upstream=await fetch('https://projectr.games/assets/drop-guide-v1.json?v=20261004-2',{headers:{'Accept':'application/json'},signal:AbortSignal.timeout(15000)});
+      if(!upstream.ok) return send(res,502,{error:'ProjectR source returned HTTP '+upstream.status});
+      const guide=await upstream.json();
+      if(!Array.isArray(guide.maps)||!guide.mobs||!guide.items) return send(res,502,{error:'ProjectR source format invalid'});
+      res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Access-Control-Allow-Origin':'*','Cache-Control':'public, max-age=300'});
+      return res.end(JSON.stringify(guide));
+    }
     if(url.pathname==='/api/game-data'&&req.method==='GET') return send(res,200,readDB());
     if(url.pathname==='/api/game-data'&&req.method==='PUT'){
       const next=await body(req); if(!valid(next)) return send(res,400,{error:'資料格式錯誤：請檢查 ID、名稱及怪物掉落物引用。'});
