@@ -72,7 +72,7 @@ const server=http.createServer(async(req,res)=>{
     }
     if(url.pathname.startsWith('/api/')) return send(res,404,{error:'API not found'});
     let pathname=decodeURIComponent(url.pathname);if(pathname==='/')pathname='/index.html';
-    const file=path.resolve(ROOT,'.'+pathname);if(!file.startsWith(ROOT+path.sep))return send(res,403,{error:'Forbidden'});
+    let file=path.resolve(ROOT,'.'+pathname);if(!file.startsWith(ROOT+path.sep))return send(res,403,{error:'Forbidden'});if(!fs.existsSync(file)){const publicRoot=path.join(ROOT,'public');const publicFile=path.resolve(publicRoot,'.'+pathname);if(publicFile.startsWith(publicRoot+path.sep))file=publicFile;}
     if(!fs.existsSync(file)||!fs.statSync(file).isFile())return send(res,404,{error:'Not found'});
     const ext=path.extname(file).toLowerCase(),mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml'}[ext]||'application/octet-stream';
     res.writeHead(200,{'Content-Type':mime,'Cache-Control':'no-store'});fs.createReadStream(file).pipe(res);
