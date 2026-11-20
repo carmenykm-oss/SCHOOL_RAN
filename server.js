@@ -35,18 +35,31 @@ const seed = {
     {id:'fireball',name:'火球術',category:'氣功師',job:'mage',level:1,mp:20,cooldown:4,range:14,power:2.5,type:'active',description:'遠距離火焰魔法。'}
   ]
 };
-function valid(db) {
-  if (!db || !TYPES.every(k => Array.isArray(db[k]))) return false;
+function validationError(db) {
+  if (!db || !TYPES.every(k => Array.isArray(db[k]))) return '缺少必要資料分類（monsters／equipment／items／skills）。';
   for (const k of TYPES) {
     const ids = new Set();
-    for (const x of db[k]) {
-      if (!x || typeof x.id !== 'string' || !x.id.trim() || typeof x.name !== 'string' || !x.name.trim() || ids.has(x.id)) return false;
+    for (let i=0;i<db[k].length;i++) {
+      const x=db[k][i], label=k+' 第 '+(i+1)+' 筆';
+      if (!x || typeof x.id !== 'string' || !x.id.trim()) return label+'缺少有效 ID。';
+      if (typeof x.name !== 'string' || !x.name.trim()) return label+'（'+x.id+'）缺少名稱。';
+      if (ids.has(x.id)) return label+'出現重複 ID：'+x.id+'。';
       ids.add(x.id);
     }
   }
   const itemIds = new Set([...db.items,...db.equipment].map(x=>x.id));
-  return db.monsters.every(m => Array.isArray(m.drops) && m.drops.every(d => itemIds.has(d.itemId) && Number.isFinite(Number(d.chance)) && Number(d.chance)>=0 && Number(d.chance)<=100));
+  for (const m of db.monsters) {
+    if (!Array.isArray(m.drops)) return '怪物「'+m.name+'」的掉落物資料不是清單。';
+    for (let i=0;i<m.drops.length;i++) {
+      const d=m.drops[i];
+      if (!d || !itemIds.has(d.itemId)) return '怪物「'+m.name+'」的第 '+(i+1)+' 項掉落物找不到對應道具／裝備（ID：'+(d&&d.itemId||'空白')+'）。';
+      const chance=Number(d.chance);
+      if (!Number.isFinite(chance) || chance<0 || chance>100) return '怪物「'+m.name+'」的掉落物「'+d.itemId+'」機率無效：'+d.chance+'（必須為 0–100）。';
+    }
+  }
+  return null;
 }
+function valid(db) { return validationError(db)===null; }
 function readDB() {
   if (!fs.existsSync(DATA_FILE)) { fs.mkdirSync(DATA_DIR,{recursive:true}); fs.writeFileSync(DATA_FILE,JSON.stringify(seed,null,2)); }
   return JSON.parse(fs.readFileSync(DATA_FILE,'utf8'));
@@ -69,7 +82,7 @@ const server=http.createServer(async(req,res)=>{
     }
     if(url.pathname==='/api/game-data'&&req.method==='GET') return send(res,200,readDB());
     if(url.pathname==='/api/game-data'&&req.method==='PUT'){
-      const next=await body(req); if(!valid(next)) return send(res,400,{error:'資料格式錯誤：請檢查 ID、名稱及怪物掉落物引用。'});
+      const next=await body(req); const problem=validationError(next); if(problem) return send(res,400,{error:'資料格式錯誤：'+problem});
       fs.mkdirSync(DATA_DIR,{recursive:true});const tmp=DATA_FILE+'.tmp';fs.writeFileSync(tmp,JSON.stringify({...next,schemaVersion:1,project:'SCHOOL_RAN',updatedAt:new Date().toISOString()},null,2));fs.renameSync(tmp,DATA_FILE);
       return send(res,200,{ok:true,savedAt:new Date().toISOString()});
     }
