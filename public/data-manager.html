@@ -67,7 +67,7 @@ const seed={
 let db=structuredClone(seed),tab='overview',editingId=null,serverOnline=false;
 let projectrDB=null,prMapId=null,prMobId=null;
 function load(){try{const v=JSON.parse(localStorage.getItem(KEY));if(v&&Array.isArray(v.monsters)&&Array.isArray(v.equipment)&&Array.isArray(v.items)&&Array.isArray(v.skills))return v}catch(e){}return structuredClone(seed)}
-async function save(){renderCounts();try{const r=await fetch('/api/game-data',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(db)});const v=await r.json();if(!r.ok)throw Error(v.error||'伺服器拒絕儲存');serverOnline=true;setServerStatus('已連接伺服器 · 儲存成功',true)}catch(e){serverOnline=false;localStorage.setItem(KEY,JSON.stringify(db));setServerStatus('伺服器未連接 · 只儲存在本機',false);alert('未能儲存至遊戲伺服器：'+e.message+'。目前只備存在此瀏覽器，請啟動 node server.js 後再儲存。')}}
+async function save(){renderCounts();try{const r=await fetch('/api/game-data',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(db)});const v=await r.json();if(!r.ok)throw Error(v.error||'伺服器拒絕儲存');serverOnline=true;setServerStatus('已連接伺服器 · 儲存成功',true)}catch(e){localStorage.setItem(KEY,JSON.stringify(db));const rejected=/資料格式錯誤|HTTP 4\d\d/.test(e.message);serverOnline=!rejected;setServerStatus(rejected?'伺服器已連線 · 資料未通過驗證':'伺服器連線失敗 · 已暫存於此瀏覽器',false);alert('未能儲存至遊戲伺服器：'+e.message+(rejected?'。伺服器已收到資料，請依照上面的具體欄位錯誤修正。':'。目前只備存在此瀏覽器，請確認 node server.js 正在執行。'))}}
 function setServerStatus(msg,ok){const el=document.getElementById('serverStatus');if(el){el.textContent=msg;el.style.color=ok?'#91e3bb':'#ffb4a8';el.style.borderColor=ok?'#34745b':'#8a4c4c'}}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 const cfg={
