@@ -1,0 +1,12 @@
+{
+  "name": "school-ran",
+  "version": "0.1.0",
+  "private": true,
+  "description": "2D GBA 16-bit 亂校園 game prototype and data server",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
