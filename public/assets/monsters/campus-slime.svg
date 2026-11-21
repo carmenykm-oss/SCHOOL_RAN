@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="88" viewBox="0 0 96 88" shape-rendering="crispEdges">
+<ellipse cx="48" cy="77" rx="31" ry="7" fill="#243c35" opacity=".42"/>
+<!-- body silhouette -->
+<path d="M12 63 L12 52 L17 43 L22 35 L29 29 L37 25 L46 23 L56 24 L66 29 L73 37 L79 48 L83 59 L81 67 L74 72 L64 76 L31 76 L20 72 Z" fill="#176b42" stroke="#102c2d" stroke-width="3"/>
+<path d="M17 58 L20 47 L28 36 L39 30 L50 28 L62 32 L71 41 L77 54 L75 65 L65 70 L31 70 L22 66 Z" fill="#38b94f"/>
+<path d="M24 46 L31 36 L42 32 L55 33 L65 40 L70 49 L60 44 L49 41 L38 43 Z" fill="#8cf26a"/>
+<path d="M31 34 L40 30 L48 29 L56 31 L49 34 L39 36 Z" fill="#c5ff8b"/>
+<!-- glossy pixel highlights -->
+<path d="M27 46 L31 40 L37 38 L35 44 L31 48 Z" fill="#e6ffb0"/>
+<rect x="42" y="27" width="5" height="3" fill="#eaffc5"/>
+<rect x="58" y="35" width="5" height="3" fill="#b6ff87"/>
+<!-- cheeks -->
+<rect x="25" y="55" width="8" height="4" fill="#ff9a9b" opacity=".9"/>
+<rect x="64" y="55" width="8" height="4" fill="#ff9a9b" opacity=".9"/>
+<!-- eyes -->
+<rect x="34" y="48" width="8" height="12" fill="#102b35"/>
+<rect x="55" y="48" width="8" height="12" fill="#102b35"/>
+<rect x="36" y="49" width="3" height="4" fill="#fff"/>
+<rect x="57" y="49" width="3" height="4" fill="#fff"/>
+<rect x="38" y="56" width="2" height="2" fill="#79dfff"/>
+<rect x="59" y="56" width="2" height="2" fill="#79dfff"/>
+<!-- smile -->
+<path d="M44 63 L47 66 L51 66 L54 63" fill="none" stroke="#17412f" stroke-width="2"/>
+<!-- tiny leaf crest -->
+<path d="M45 24 L42 16 L47 18 L51 10 L55 19 L52 25 Z" fill="#2b914a" stroke="#16452f" stroke-width="2"/>
+<rect x="47" y="17" width="3" height="5" fill="#b4ef65"/>
+<!-- sparkle -->
+<path d="M77 23 L79 17 L81 23 L87 25 L81 27 L79 33 L77 27 L71 25 Z" fill="#fff1a6"/>
+</svg>
