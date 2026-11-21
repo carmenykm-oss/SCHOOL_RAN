@@ -92,7 +92,7 @@ const server=http.createServer(async(req,res)=>{
       return send(res,200,{monsterId:monster.id,exp:Number(monster.exp)||0,gold:Math.floor(Math.random()*(Math.max(0,Number(monster.goldMax)||0)-Math.max(0,Number(monster.goldMin)||0)+1))+Math.max(0,Number(monster.goldMin)||0),drops:rollDrops(monster,db)});
     }
     if(url.pathname.startsWith('/api/')) return send(res,404,{error:'API not found'});
-    let pathname=decodeURIComponent(url.pathname);if(pathname==='/')pathname='/index.html';
+    let pathname=decodeURIComponent(url.pathname);if(pathname==='/')pathname='/game.html';
     let file=path.resolve(ROOT,'.'+pathname);if(!file.startsWith(ROOT+path.sep))return send(res,403,{error:'Forbidden'});if(!fs.existsSync(file)){const publicRoot=path.join(ROOT,'public');const publicFile=path.resolve(publicRoot,'.'+pathname);if(publicFile.startsWith(publicRoot+path.sep))file=publicFile;}
     if(!fs.existsSync(file)||!fs.statSync(file).isFile())return send(res,404,{error:'Not found'});
     const ext=path.extname(file).toLowerCase(),mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml'}[ext]||'application/octet-stream';
