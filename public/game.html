@@ -50,7 +50,7 @@ const $=id=>document.getElementById(id), canvas=$('world'),ctx=canvas.getContext
 const W=canvas.width,H=canvas.height,KEYS=new Set();
 const monsterSprites=new Map();
 function spriteFor(monster){
- const path=monster.data.sprite||((/slime|史萊姆|俗辣/i.test((monster.data.id||'')+' '+(monster.data.name||'')))?'/assets/monsters/campus-slime.svg':'');
+ const monsterKey=(monster.data.id||'')+' '+(monster.data.name||'');const path=monster.data.sprite||(/俗辣|hooligan/i.test(monsterKey)?'/assets/monsters/campus-hooligan.svg':(/slime|史萊姆/i.test(monsterKey)?'/assets/monsters/campus-slime.svg':''));
  if(!path)return null;
  if(!monsterSprites.has(path)){const img=new Image();img.src=path;monsterSprites.set(path,img)}
  const img=monsterSprites.get(path);return img.complete&&img.naturalWidth?img:null;
