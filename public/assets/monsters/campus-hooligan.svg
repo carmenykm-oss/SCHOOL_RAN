@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="88" viewBox="0 0 80 88" shape-rendering="crispEdges">
+<ellipse cx="40" cy="79" rx="23" ry="6" fill="#25362f" opacity=".48"/>
+<!-- shoes -->
+<path d="M20 68 H35 V78 H17 V73 Z M45 68 H60 V78 H43 V73 Z" fill="#302b35" stroke="#171923" stroke-width="2"/>
+<path d="M18 74 H35 V79 H16 Z M44 74 H62 V79 H43 Z" fill="#7c493d"/>
+<!-- legs -->
+<path d="M25 53 H37 V70 H25 Z M43 53 H55 V70 H43 Z" fill="#35445e" stroke="#192537" stroke-width="2"/>
+<path d="M27 57 H34 V65 H27 Z M46 57 H52 V65 H46 Z" fill="#536b8d"/>
+<!-- jacket -->
+<path d="M21 34 L31 29 H49 L59 35 L62 58 L53 63 H27 L18 58 Z" fill="#a83f42" stroke="#35222a" stroke-width="3"/>
+<path d="M31 31 L40 39 L49 31 L53 58 H27 Z" fill="#e0d7c5"/>
+<path d="M37 39 L43 39 L45 59 H35 Z" fill="#314e72"/>
+<path d="M20 39 L13 52 L20 57 L28 44 Z M59 39 L67 52 L60 57 L52 44 Z" fill="#a83f42" stroke="#35222a" stroke-width="2"/>
+<!-- head and ears -->
+<rect x="26" y="10" width="28" height="27" fill="#e9b58d" stroke="#382832" stroke-width="3"/>
+<rect x="22" y="19" width="5" height="9" fill="#d99775"/>
+<rect x="53" y="19" width="5" height="9" fill="#d99775"/>
+<!-- hair -->
+<path d="M23 22 L20 12 L27 14 L28 6 L35 11 L40 4 L44 11 L53 7 L54 16 L59 19 L54 24 L49 18 L43 21 L36 17 L29 23 Z" fill="#4a2c28" stroke="#211d25" stroke-width="2"/>
+<path d="M26 16 L32 12 L34 17 L41 10 L43 17 L51 12 L53 19 L46 22 L39 19 L31 23 Z" fill="#87513b"/>
+<!-- eyes / brows -->
+<rect x="30" y="24" width="6" height="3" fill="#30232b"/>
+<rect x="45" y="24" width="6" height="3" fill="#30232b"/>
+<rect x="32" y="25" width="2" height="2" fill="#fff"/>
+<rect x="47" y="25" width="2" height="2" fill="#fff"/>
+<path d="M30 21 L37 22 M44 22 L51 20" stroke="#30232b" stroke-width="2"/>
+<path d="M37 32 L42 34 L47 31" fill="none" stroke="#8d4d4b" stroke-width="2"/>
+<!-- bandana and belt -->
+<path d="M26 35 L40 39 L54 34 L52 41 L40 45 L28 41 Z" fill="#e3bd57"/>
+<rect x="36" y="57" width="8" height="4" fill="#e5bd62"/>
+<!-- pixel accents -->
+<rect x="19" y="48" width="4" height="4" fill="#f07a67"/>
+<rect x="57" y="48" width="4" height="4" fill="#f07a67"/>
+<path d="M61 13 L64 7 L67 13 L73 16 L67 19 L64 25 L61 19 L55 16 Z" fill="#ffe39a"/>
+</svg>
