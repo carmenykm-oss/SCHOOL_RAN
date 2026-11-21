@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SCHOOL_RAN｜角色方向測試</title>
+<style>
+:root{color-scheme:dark;--panel:#202735;--line:#3b475b;--accent:#83d7c2}
+*{box-sizing:border-box}body{margin:0;background:#111722;color:#edf2fa;font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif}
+main{max-width:1000px;margin:auto;padding:22px}
+h1{font-size:22px;margin:0 0 6px}p{color:#aeb9c9;margin:0 0 18px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+button{border:1px solid var(--line);background:var(--panel);color:#edf2fa;border-radius:10px;padding:10px 15px;font-size:15px;cursor:pointer}
+button[aria-pressed=true]{border-color:var(--accent);background:#25443f}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:14px}
+.stage,.side{border:1px solid var(--line);border-radius:16px;background:#1a2230}
+.stage{height:570px;position:relative;overflow:hidden;background-image:linear-gradient(#ffffff08 1px,transparent 1px),linear-gradient(90deg,#ffffff08 1px,transparent 1px);background-size:32px 32px}
+.ground{position:absolute;left:0;right:0;bottom:72px;height:2px;background:#64718a55}
+.actor{position:absolute;left:50%;bottom:72px;transform:translateX(-50%);height:420px;max-width:80%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 8px 5px #0008);transition:left .08s linear}
+.side{padding:16px}.side h2{font-size:16px;margin:0 0 12px}.directions{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.directions button{padding:10px 4px}
+.info{font-size:13px;line-height:1.7;color:#aeb9c9;margin-top:16px}.status{color:var(--accent);font-weight:600;margin-bottom:8px}
+@media(max-width:700px){main{padding:14px}.layout{grid-template-columns:1fr}.stage{height:460px}.actor{height:350px}.side{order:2}}
+</style>
+</head>
+<body>
+<main>
+<h1>SCHOOL_RAN｜角色四方向測試</h1>
+<p>讀取 spritesheet.json 內嵌的角色底圖。方向鍵／WASD 可切換面向及移動位置。</p>
+<div class="toolbar">
+<button id="male" aria-pressed="true">男角色</button>
+<button id="female" aria-pressed="false">女角色</button>
+<button id="reset">重置位置</button>
+</div>
+<div class="layout">
+<section class="stage" id="stage" aria-label="角色測試場景">
+<div class="ground"></div>
+<img class="actor" id="actor" alt="角色底圖">
+</section>
+<aside class="side">
+<h2>方向控制</h2>
+<div class="directions">
+<span></span><button data-dir="up">↑ 背面</button><span></span>
+<button data-dir="left">← 左側</button><button data-dir="down">↓ 正面</button><button data-dir="right">右側 →</button>
+</div>
+<div class="info">
+<div class="status" id="status">男角色・正面</div>
+<div>方向：↑ 背面／↓ 正面／← 左側／→ 右側</div>
+<div>移動：W A S D 或方向鍵</div>
+<div>素材狀態：目前只有靜態四方向，尚未包含走路影格。</div>
+<div>換裝：目前是身體底圖，未拆分頭髮、上衣、褲子、鞋子及配件。</div>
+</div>
+</aside>
+</div>
+</main>
+<script>
+(async()=>{
+const actor=document.getElementById('actor'),status=document.getElementById('status'),stage=document.getElementById('stage');
+const dirs=['down','up','left','right'];
+let gender=0,dir='down',x=.5,y=0,sprites=[];
+const setStatus=()=>{status.textContent=(gender===0?'男角色':'女角色')+'・'+({down:'正面',up:'背面',left:'左側',right:'右側'}[dir]);};
+const render=()=>{const s=sprites[gender*4+dirs.indexOf(dir)];if(!s)return;actor.src=s.base64;actor.style.left=(x*100)+'%';setStatus();};
+const setGender=n=>{gender=n;document.getElementById('male').setAttribute('aria-pressed',String(n===0));document.getElementById('female').setAttribute('aria-pressed',String(n===1));render();};
+const move=(key)=>{const step=.035;if(key==='ArrowUp'||key==='w'){dir='up';y=Math.max(-.45,y-step)}else if(key==='ArrowDown'||key==='s'){dir='down';y=Math.min(.25,y+step)}else if(key==='ArrowLeft'||key==='a'){dir='left';x=Math.max(.12,x-step)}else if(key==='ArrowRight'||key==='d'){dir='right';x=Math.min(.88,x+step)}else return;actor.style.bottom=(72-y*260)+'px';render();};
+try{const res=await fetch('/spritesheet.json');if(!res.ok)throw new Error('HTTP '+res.status);const data=await res.json();sprites=(data.layers||[]).flatMap(l=>l.sprites||[]);if(sprites.length<8)throw new Error('角色圖片不足 8 張');render();}catch(e){status.textContent='讀取失敗：'+e.message;return;}
+document.getElementById('male').onclick=()=>setGender(0);document.getElementById('female').onclick=()=>setGender(1);
+document.getElementById('reset').onclick=()=>{x=.5;y=0;actor.style.bottom='72px';render();};
+document.querySelectorAll('[data-dir]').forEach(b=>b.onclick=()=>{dir=b.dataset.dir;render();});
+window.addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d','W','A','S','D'].includes(e.key)){e.preventDefault();move(e.key.toLowerCase().startsWith('arrow')?e.key:e.key.toLowerCase());}});
+})();
+</script>
+</body>
+</html>
