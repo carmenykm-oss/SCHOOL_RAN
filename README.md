@@ -6,7 +6,7 @@
 
 ## 目前內容
 
-- `public/data-manager.html`：遊戲資料管理器，管理怪物、裝備、道具、技能及怪物掉落表。
+- `public/game.html`：0.6 校園冒險測試場景，讀取資料庫怪物、裝備、道具與掉落資料，支援移動、戰鬥、重生及本機測試背包。\n- `public/data-manager.html`：遊戲資料管理器，管理怪物、裝備、道具、技能及怪物掉落表。
 - `server.js`：Node.js 遊戲資料伺服器與怪物獎勵結算 API。
 - `data/game-data.json`：伺服器權威遊戲資料。
 - `docs/GAME-DATA-API.md`：API 規格與遊戲端串接範例。
