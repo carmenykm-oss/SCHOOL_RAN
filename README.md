@@ -6,7 +6,7 @@
 
 ## 目前內容
 
-- `public/game.html`：0.6 校園冒險測試場景，讀取資料庫怪物、裝備、道具與掉落資料，支援移動、戰鬥、重生及本機測試背包。\n- `public/data-manager.html`：遊戲資料管理器，管理怪物、裝備、道具、技能及怪物掉落表。
+- `public/game.html`：0.6 校園冒險測試場景，讀取資料庫怪物、裝備、道具與掉落資料，支援移動、戰鬥、重生及本機測試背包。\n- `public/data-manager.html`：遊戲資料管理器，管理怪物、裝備、道具、技能及怪物掉落表。\n- `public/monster-style-studio.html`：AI 怪物風格工作室，使用人物參考圖重繪怪物並批量匯出。
 - `server.js`：Node.js 遊戲資料伺服器與怪物獎勵結算 API。
 - `data/game-data.json`：伺服器權威遊戲資料。
 - `docs/GAME-DATA-API.md`：API 規格與遊戲端串接範例。
@@ -46,3 +46,4 @@ npm start
 - 男女角色、髮型、上衣、褲子、鞋子、武器、飾品採可拆分圖層。
 - 遊戲系統以資料驅動，新增怪物或裝備不應要求修改程式碼。
 - 原始 PROJECT_RAN 倉庫保留不動；SCHOOL_RAN 為 2D 主線。
+\n\n## AI 怪物風格重繪\n\n工作室需要伺服器環境變數 `OPENAI_API_KEY`。ChatGPT 訂閱不包含 API 額度；API 使用會另行計費。請勿將金鑰提交到 GitHub。Windows PowerShell 可先執行 `$env:OPENAI_API_KEY=\"你的 API key\"`，再執行 `npm start`。完整步驟見 [docs/MONSTER-AI-STYLE.md](docs/MONSTER-AI-STYLE.md)。\n
