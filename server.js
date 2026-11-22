@@ -66,12 +66,48 @@ function readDB() {
 }
 function send(res,status,obj){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Access-Control-Allow-Origin':'*','Cache-Control':'no-store'});res.end(JSON.stringify(obj));}
 function body(req){return new Promise((resolve,reject)=>{let s='';req.on('data',c=>{s+=c;if(s.length>30e6)reject(new Error('資料超過 30MB'));});req.on('end',()=>{try{resolve(JSON.parse(s||'{}'));}catch(e){reject(e);}});});}
+// Optional GitHub sync. Credentials stay on the server and are never sent to the browser.
+function loadLocalEnv(){
+  const envFile=path.join(ROOT,'.env');
+  if(!fs.existsSync(envFile)) return;
+  for(const line of fs.readFileSync(envFile,'utf8').split(/\r?\n/)){
+    const m=line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*?)\s*$/);
+    if(m&&!process.env[m[1]]) process.env[m[1]]=m[2].replace(/^["']|["']$/g,'');
+  }
+}
+loadLocalEnv();
+function githubConfig(){
+  return {token:process.env.GITHUB_TOKEN,repo:process.env.GITHUB_REPO||'carmenykm-oss/SCHOOL_RAN',branch:process.env.GITHUB_BRANCH||'main'};
+}
+async function githubPutFile(repoPath,base64,message){
+  const cfg=githubConfig();
+  if(!cfg.token) return {synced:false,reason:'missing_token'};
+  const [owner,name]=cfg.repo.split('/');
+  if(!owner||!name) throw new Error('GITHUB_REPO 必須使用 owner/repository 格式。');
+  const api='https://api.github.com/repos/'+encodeURIComponent(owner)+'/'+encodeURIComponent(name)+'/contents/'+repoPath.split('/').map(encodeURIComponent).join('/');
+  const headers={'Accept':'application/vnd.github+json','Authorization':'Bearer '+cfg.token,'X-GitHub-Api-Version':'2022-11-28','User-Agent':'SCHOOL-RAN-Data-Manager'};
+  let sha;
+  const current=await fetch(api+'?ref='+encodeURIComponent(cfg.branch),{headers,signal:AbortSignal.timeout(20000)});
+  if(current.ok){const file=await current.json();sha=file.sha;}
+  else if(current.status!==404){const detail=await current.json().catch(()=>({}));throw new Error('GitHub 讀取失敗 ('+current.status+')：'+(detail.message||'請檢查 Token 權限及 Repository 設定。'));}
+  const payload={message,content:base64,branch:cfg.branch};
+  if(sha) payload.sha=sha;
+  const response=await fetch(api,{method:'PUT',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(45000)});
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok) throw new Error('GitHub 寫入失敗 ('+response.status+')：'+(result.message||'請檢查 Contents 權限、分支及檔案大小。'));
+  return {synced:true,commit:result.commit&&result.commit.sha,htmlUrl:result.content&&result.content.html_url};
+}
+function githubSyncStatus(){
+  const c=githubConfig();
+  return {configured:!!c.token,repo:c.repo,branch:c.branch};
+}
 function rollDrops(monster,db){const catalog=new Map([...db.items,...db.equipment].map(x=>[x.id,x]));return monster.drops.filter(d=>Math.random()*100<Number(d.chance)).map(d=>{const item=catalog.get(d.itemId);const min=Math.max(1,Number(d.min)||1),max=Math.max(min,Number(d.max)||min);return {itemId:item.id,name:item.name,kind:db.equipment.some(x=>x.id===item.id)?'equipment':'item',quantity:Math.floor(Math.random()*(max-min+1))+min};});}
 const server=http.createServer(async(req,res)=>{
   const url=new URL(req.url,'http://localhost');
   if(req.method==='OPTIONS'){res.writeHead(204,{'Access-Control-Allow-Origin':'*','Access-Control-Allow-Methods':'GET,PUT,POST,OPTIONS','Access-Control-Allow-Headers':'Content-Type'});return res.end();}
   try {
     if(url.pathname==='/api/health'&&req.method==='GET') return send(res,200,{ok:true,project:'SCHOOL_RAN'});
+    if(url.pathname==='/api/github/status'&&req.method==='GET') return send(res,200,githubSyncStatus());
     if(url.pathname==='/api/projectr-drop-guide'&&req.method==='GET'){
       const upstream=await fetch('https://projectr.games/assets/drop-guide-v1.json?v=20261004-2',{headers:{'Accept':'application/json'},signal:AbortSignal.timeout(15000)});
       if(!upstream.ok) return send(res,502,{error:'ProjectR source returned HTTP '+upstream.status});
@@ -108,13 +144,13 @@ Use the first image as the source monster to transform. If a second image is pro
       return send(res,200,{ok:true,mimeType:'image/png',data:generated,model:process.env.OPENAI_IMAGE_MODEL||'gpt-image-2'});
     }
     if(url.pathname==='/api/monster-assets'&&req.method==='POST'){
-      const input=await body(req);const id=String(input.id||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,64);const types={'image/png':'png','image/jpeg':'jpg','image/webp':'webp'};const ext=types[input.mimeType];if(!id||!ext||typeof input.data!=='string'||input.data.length>12e6)return send(res,400,{error:'圖片資料無效；只支援 8MB 內的 PNG／JPG／WEBP。'});const bytes=Buffer.from(input.data,'base64');const valid=ext==='png'?bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])):ext==='jpg'?bytes[0]===255&&bytes[1]===216&&bytes[2]===255:bytes.subarray(0,4).toString()==='RIFF'&&bytes.subarray(8,12).toString()==='WEBP';if(!valid)return send(res,400,{error:'圖片檔案內容與格式不符。'});const dir=path.join(ROOT,'public','assets','monsters');fs.mkdirSync(dir,{recursive:true});const filename=id+'.'+ext;fs.writeFileSync(path.join(dir,filename),bytes);return send(res,200,{ok:true,path:'/assets/monsters/'+filename,bytes:bytes.length});
+      const input=await body(req);const id=String(input.id||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,64);const types={'image/png':'png','image/jpeg':'jpg','image/webp':'webp'};const ext=types[input.mimeType];if(!id||!ext||typeof input.data!=='string'||input.data.length>12e6)return send(res,400,{error:'圖片資料無效；只支援 8MB 內的 PNG／JPG／WEBP。'});const bytes=Buffer.from(input.data,'base64');const valid=ext==='png'?bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])):ext==='jpg'?bytes[0]===255&&bytes[1]===216&&bytes[2]===255:bytes.subarray(0,4).toString()==='RIFF'&&bytes.subarray(8,12).toString()==='WEBP';if(!valid)return send(res,400,{error:'圖片檔案內容與格式不符。'});const dir=path.join(ROOT,'public','assets','monsters');fs.mkdirSync(dir,{recursive:true});const filename=id+'.'+ext;fs.writeFileSync(path.join(dir,filename),bytes);let github={synced:false,reason:'missing_token'};try{github=await githubPutFile('public/assets/monsters/'+filename,bytes.toString('base64'),'Add/update monster image: '+filename);}catch(e){github={synced:false,error:e.message};}return send(res,200,{ok:true,path:'/assets/monsters/'+filename,bytes:bytes.length,githubSynced:github.synced,githubError:github.error||null,githubReason:github.reason||null,githubCommit:github.commit||null});
     }
     if(url.pathname==='/api/game-data'&&req.method==='GET') return send(res,200,readDB());
     if(url.pathname==='/api/game-data'&&req.method==='PUT'){
       const next=await body(req); const problem=validationError(next); if(problem) return send(res,400,{error:'資料格式錯誤：'+problem});
-      fs.mkdirSync(DATA_DIR,{recursive:true});const tmp=DATA_FILE+'.tmp';fs.writeFileSync(tmp,JSON.stringify({...next,schemaVersion:1,project:'SCHOOL_RAN',updatedAt:new Date().toISOString()},null,2));fs.renameSync(tmp,DATA_FILE);
-      return send(res,200,{ok:true,savedAt:new Date().toISOString()});
+      fs.mkdirSync(DATA_DIR,{recursive:true});const saved={...next,schemaVersion:1,project:'SCHOOL_RAN',updatedAt:new Date().toISOString()};const serialized=JSON.stringify(saved,null,2);const tmp=DATA_FILE+'.tmp';fs.writeFileSync(tmp,serialized);fs.renameSync(tmp,DATA_FILE);let github={synced:false,reason:'missing_token'};try{github=await githubPutFile('data/game-data.json',Buffer.from(serialized,'utf8').toString('base64'),'Update SCHOOL_RAN game data');}catch(e){github={synced:false,error:e.message};}
+      return send(res,200,{ok:true,savedAt:saved.updatedAt,githubSynced:github.synced,githubError:github.error||null,githubReason:github.reason||null,githubCommit:github.commit||null});
     }
     const defeat=url.pathname.match(/^\/api\/game\/monsters\/([^/]+)\/defeat$/);
     if(defeat&&req.method==='POST'){
