@@ -105,7 +105,7 @@ const server=http.createServer(async(req,res)=>{
       if(!generated) return send(res,502,{error:'AI 沒有回傳可用圖片。'});
       return send(res,200,{ok:true,mimeType:'image/png',data:generated,model:process.env.OPENAI_IMAGE_MODEL||'gpt-image-2'});
     }
-    if(url.pathname==='/api/game-data'&&req.method==='GET') return send(res,200,readDB());
+    if(url.pathname==='/api/monster-assets'&&req.method==='POST'){\n      const input=await body(req);const id=String(input.id||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,64);const types={'image/png':'png','image/jpeg':'jpg','image/webp':'webp'};const ext=types[input.mimeType];if(!id||!ext||typeof input.data!=='string'||input.data.length>12e6)return send(res,400,{error:'圖片資料無效；只支援 8MB 內的 PNG／JPG／WEBP。'});const bytes=Buffer.from(input.data,'base64');const valid=ext==='png'?bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])):ext==='jpg'?bytes[0]===255&&bytes[1]===216&&bytes[2]===255:bytes.subarray(0,4).toString()==='RIFF'&&bytes.subarray(8,12).toString()==='WEBP';if(!valid)return send(res,400,{error:'圖片檔案內容與格式不符。'});const dir=path.join(ROOT,'public','assets','monsters');fs.mkdirSync(dir,{recursive:true});const filename=id+'.'+ext;fs.writeFileSync(path.join(dir,filename),bytes);return send(res,200,{ok:true,path:'/assets/monsters/'+filename,bytes:bytes.length});\n    }\n    if(url.pathname==='/api/game-data'&&req.method==='GET') return send(res,200,readDB());
     if(url.pathname==='/api/game-data'&&req.method==='PUT'){
       const next=await body(req); const problem=validationError(next); if(problem) return send(res,400,{error:'資料格式錯誤：'+problem});
       fs.mkdirSync(DATA_DIR,{recursive:true});const tmp=DATA_FILE+'.tmp';fs.writeFileSync(tmp,JSON.stringify({...next,schemaVersion:1,project:'SCHOOL_RAN',updatedAt:new Date().toISOString()},null,2));fs.renameSync(tmp,DATA_FILE);
@@ -120,7 +120,7 @@ const server=http.createServer(async(req,res)=>{
     let pathname=decodeURIComponent(url.pathname);if(pathname==='/')pathname='/game.html';
     let file=path.resolve(ROOT,'.'+pathname);if(!file.startsWith(ROOT+path.sep))return send(res,403,{error:'Forbidden'});if(!fs.existsSync(file)){const publicRoot=path.join(ROOT,'public');const publicFile=path.resolve(publicRoot,'.'+pathname);if(publicFile.startsWith(publicRoot+path.sep))file=publicFile;}
     if(!fs.existsSync(file)||!fs.statSync(file).isFile())return send(res,404,{error:'Not found'});
-    const ext=path.extname(file).toLowerCase(),mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml'}[ext]||'application/octet-stream';
+    const ext=path.extname(file).toLowerCase(),mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.svg':'image/svg+xml'}[ext]||'application/octet-stream';
     res.writeHead(200,{'Content-Type':mime,'Cache-Control':'no-store'});fs.createReadStream(file).pipe(res);
   } catch(e){send(res,500,{error:e.message||'Server error'});}
 });
