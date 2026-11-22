@@ -111,8 +111,8 @@
 }
 .action-area .attack small{display:none !important}
 .action-area .skill{
-  position:absolute !important;width:52px !important;height:52px !important;
-  min-width:52px !important;max-width:52px !important;padding:0 !important;
+  position:absolute !important;width:48px !important;height:48px !important;
+  min-width:48px !important;max-width:48px !important;padding:0 !important;
   transform:none !important;border-radius:50% !important;z-index:4 !important;
   display:grid !important;place-items:center !important;overflow:hidden !important;
   background:radial-gradient(circle at 35% 25%,#527c9d,#102238 76%) !important;
@@ -120,17 +120,18 @@
   box-shadow:0 4px 14px #000a,inset 0 0 0 3px #ffffff20 !important;
   color:#fff4cf !important;touch-action:manipulation !important;
 }
-.action-area #skill1{left:192.32px !important;top:242.2px !important}
-.action-area #skill2{left:180.16px !important;top:208.78px !important}
-.action-area #skill3{left:215.16px !important;top:112.58px !important}
-.action-area #skill4{left:281px !important;top:88.6px !important}
+/* 四技能依序固定於 9、10、11、12 點；同半徑 112px，按鈕直徑 48px，中心間距約 58px */
+.action-area #skill1{left:171px !important;top:193px !important}
+.action-area #skill2{left:186px !important;top:137px !important}
+.action-area #skill3{left:227px !important;top:96px !important}
+.action-area #skill4{left:283px !important;top:81px !important}
 .action-area .skill-icon{
-  display:block !important;font-size:28px !important;line-height:1 !important;
+  display:block !important;font-size:25px !important;line-height:1 !important;
   margin-top:4px !important;text-shadow:0 2px 4px #000 !important;
 }
 .action-area .skill kbd{
   position:absolute !important;left:3px !important;top:3px !important;
-  display:grid !important;place-items:center !important;width:14px !important;height:14px !important;
+  display:grid !important;place-items:center !important;width:13px !important;height:13px !important;
   padding:0 !important;border:1px solid #f1d18b !important;border-radius:50% !important;
   background:#071321 !important;color:#ffe4a3 !important;
   font:800 8px/1 Arial,sans-serif !important;z-index:5 !important;
