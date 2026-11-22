@@ -63,6 +63,36 @@
 .toast.show{opacity:1}
 @media(min-width:700px){#game{max-width:480px;height:min(100vh,900px);height:min(100dvh,900px);margin:auto;border-left:5px solid #4b3a2b;border-right:5px solid #4b3a2b}.topbar{left:12px;right:12px}.joy-area{left:22px}.action-area{right:52px}}
 @media(max-height:620px){.joy-area{width:108px;height:108px;bottom:25px}.joy-knob{width:45px;height:45px}.attack{width:66px;height:66px}.skill{width:48px;height:48px}.action-area .skill:nth-child(1){left:-82px;top:47px}.action-area .skill:nth-child(2){left:-89px;top:-32px}.action-area .skill:nth-child(3){left:-32px;top:-89px}.action-area .skill:nth-child(4){left:16px;top:-93px}}
+
+/* 橫向手機版：完整寬螢幕遊戲配置 */
+@media (orientation:landscape) and (min-width:600px){
+#game{width:100vw;max-width:none;height:100dvh;margin:0;border:0}
+.school{top:13%;left:50%;width:min(42%,520px);height:31%}
+.path{top:51%;height:23%}.tree{width:58px;height:58px}
+.t1{left:8%;top:23%}.t2{right:8%;top:20%}.t3{left:22%;bottom:10%}.t4{right:22%;bottom:10%}
+.topbar{top:8px;left:12px;right:12px}.profile{min-width:168px;padding:5px 8px}
+.portrait{width:36px;height:36px}.bars{width:104px}.minimap{width:82px;height:68px}
+.quest{top:88px;left:12px;max-width:150px;font-size:10px;padding:5px 8px}
+.char{top:59%}.npc{left:65%;top:49%}.npc-label{left:calc(65% - 10px);top:46%}
+.chat{left:170px;bottom:8px;width:min(30%,260px)}.exp{bottom:8px;width:25%}
+.joy-area{left:22px;bottom:18px;width:104px;height:104px}.joy-knob{width:44px;height:44px}
+.action-area{right:118px;bottom:78px}.attack{width:68px;height:68px}.skill{width:48px;height:48px}
+.action-area .skill:nth-child(1){left:-79px;top:45.6px}
+.action-area .skill:nth-child(2){left:-85.7px;top:-31.2px}
+.action-area .skill:nth-child(3){left:-31.2px;top:-85.7px}
+.action-area .skill:nth-child(4){left:15.8px;top:-89.8px}
+.quick{top:88px;right:12px;flex-direction:row}
+}
+@media (orientation:landscape) and (max-height:430px){
+.profile{transform:scale(.88);transform-origin:top left}.quest{top:68px}
+.joy-area{width:88px;height:88px;left:16px;bottom:12px}.joy-knob{width:38px;height:38px}
+.action-area{right:98px;bottom:65px}.attack{width:60px;height:60px}.skill{width:43px;height:43px}
+.action-area .skill:nth-child(1){left:-71px;top:41px}
+.action-area .skill:nth-child(2){left:-77px;top:-28px}
+.action-area .skill:nth-child(3){left:-28px;top:-77px}
+.action-area .skill:nth-child(4){left:14px;top:-81px}
+.chat{left:120px;font-size:9px}.exp{width:22%}.quick{top:66px}
+}
 </style></head>
 <body><main id="game" aria-label="亂校園手機遊戲介面">
 <div class="scene"><div class="school"><i class="window w1"></i><i class="window w2"></i><i class="window w3"></i><i class="window w4"></i></div><div class="path"></div><i class="tree t1"></i><i class="tree t2"></i><i class="tree t3"></i><i class="tree t4"></i><i class="flower f1"></i><i class="flower f2"></i></div>
