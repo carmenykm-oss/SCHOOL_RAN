@@ -65,7 +65,7 @@ function readDB() {
   return JSON.parse(fs.readFileSync(DATA_FILE,'utf8'));
 }
 function send(res,status,obj){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Access-Control-Allow-Origin':'*','Cache-Control':'no-store'});res.end(JSON.stringify(obj));}
-function body(req){return new Promise((resolve,reject)=>{let s='';req.on('data',c=>{s+=c;if(s.length>5e6)reject(new Error('資料超過 5MB'));});req.on('end',()=>{try{resolve(JSON.parse(s||'{}'));}catch(e){reject(e);}});});}
+function body(req){return new Promise((resolve,reject)=>{let s='';req.on('data',c=>{s+=c;if(s.length>30e6)reject(new Error('資料超過 30MB'));});req.on('end',()=>{try{resolve(JSON.parse(s||'{}'));}catch(e){reject(e);}});});}
 function rollDrops(monster,db){const catalog=new Map([...db.items,...db.equipment].map(x=>[x.id,x]));return monster.drops.filter(d=>Math.random()*100<Number(d.chance)).map(d=>{const item=catalog.get(d.itemId);const min=Math.max(1,Number(d.min)||1),max=Math.max(min,Number(d.max)||min);return {itemId:item.id,name:item.name,kind:db.equipment.some(x=>x.id===item.id)?'equipment':'item',quantity:Math.floor(Math.random()*(max-min+1))+min};});}
 const server=http.createServer(async(req,res)=>{
   const url=new URL(req.url,'http://localhost');
