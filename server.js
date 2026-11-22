@@ -1,6 +1,7 @@
 // SCHOOL_RAN lightweight game-data server (Node.js built-ins only)
 'use strict';
 const http = require('node:http');
+const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const ROOT = __dirname;
@@ -77,7 +78,7 @@ function loadLocalEnv(){
 }
 loadLocalEnv();
 function githubConfig(){
-  return {token:process.env.GITHUB_TOKEN,repo:process.env.GITHUB_REPO||'carmenykm-oss/SCHOOL_RAN',branch:process.env.GITHUB_BRANCH||'main'};
+  return {token:process.env.GITHUB_TOKEN,adminKey:process.env.DATA_MANAGER_KEY,repo:process.env.GITHUB_REPO||'carmenykm-oss/SCHOOL_RAN',branch:process.env.GITHUB_BRANCH||'main'};
 }
 async function githubPutFile(repoPath,base64,message){
   const cfg=githubConfig();
@@ -99,7 +100,16 @@ async function githubPutFile(repoPath,base64,message){
 }
 function githubSyncStatus(){
   const c=githubConfig();
-  return {configured:!!c.token,repo:c.repo,branch:c.branch};
+  return {configured:!!c.token&&!!c.adminKey,tokenConfigured:!!c.token,adminKeyConfigured:!!c.adminKey,repo:c.repo,branch:c.branch};
+}
+function authorizeWrite(req,res){
+  const c=githubConfig();
+  if(!c.token) return true;
+  if(!c.adminKey){send(res,503,{error:'GitHub 同步已設定，但缺少 DATA_MANAGER_KEY。請在伺服器設定管理密鑰後重啟。'});return false;}
+  const supplied=String(req.headers['x-admin-key']||'');
+  const a=Buffer.from(supplied),b=Buffer.from(c.adminKey);
+  if(a.length!==b.length||!crypto.timingSafeEqual(a,b)){send(res,401,{error:'管理密鑰不正確，請重新輸入 DATA_MANAGER_KEY。'});return false;}
+  return true;
 }
 function rollDrops(monster,db){const catalog=new Map([...db.items,...db.equipment].map(x=>[x.id,x]));return monster.drops.filter(d=>Math.random()*100<Number(d.chance)).map(d=>{const item=catalog.get(d.itemId);const min=Math.max(1,Number(d.min)||1),max=Math.max(min,Number(d.max)||min);return {itemId:item.id,name:item.name,kind:db.equipment.some(x=>x.id===item.id)?'equipment':'item',quantity:Math.floor(Math.random()*(max-min+1))+min};});}
 const server=http.createServer(async(req,res)=>{
@@ -144,10 +154,12 @@ Use the first image as the source monster to transform. If a second image is pro
       return send(res,200,{ok:true,mimeType:'image/png',data:generated,model:process.env.OPENAI_IMAGE_MODEL||'gpt-image-2'});
     }
     if(url.pathname==='/api/monster-assets'&&req.method==='POST'){
+      if(!authorizeWrite(req,res)) return;
       const input=await body(req);const id=String(input.id||'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,64);const types={'image/png':'png','image/jpeg':'jpg','image/webp':'webp'};const ext=types[input.mimeType];if(!id||!ext||typeof input.data!=='string'||input.data.length>12e6)return send(res,400,{error:'圖片資料無效；只支援 8MB 內的 PNG／JPG／WEBP。'});const bytes=Buffer.from(input.data,'base64');const valid=ext==='png'?bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])):ext==='jpg'?bytes[0]===255&&bytes[1]===216&&bytes[2]===255:bytes.subarray(0,4).toString()==='RIFF'&&bytes.subarray(8,12).toString()==='WEBP';if(!valid)return send(res,400,{error:'圖片檔案內容與格式不符。'});const dir=path.join(ROOT,'public','assets','monsters');fs.mkdirSync(dir,{recursive:true});const filename=id+'.'+ext;fs.writeFileSync(path.join(dir,filename),bytes);let github={synced:false,reason:'missing_token'};try{github=await githubPutFile('public/assets/monsters/'+filename,bytes.toString('base64'),'Add/update monster image: '+filename);}catch(e){github={synced:false,error:e.message};}return send(res,200,{ok:true,path:'/assets/monsters/'+filename,bytes:bytes.length,githubSynced:github.synced,githubError:github.error||null,githubReason:github.reason||null,githubCommit:github.commit||null});
     }
     if(url.pathname==='/api/game-data'&&req.method==='GET') return send(res,200,readDB());
     if(url.pathname==='/api/game-data'&&req.method==='PUT'){
+      if(!authorizeWrite(req,res)) return;
       const next=await body(req); const problem=validationError(next); if(problem) return send(res,400,{error:'資料格式錯誤：'+problem});
       fs.mkdirSync(DATA_DIR,{recursive:true});const saved={...next,schemaVersion:1,project:'SCHOOL_RAN',updatedAt:new Date().toISOString()};const serialized=JSON.stringify(saved,null,2);const tmp=DATA_FILE+'.tmp';fs.writeFileSync(tmp,serialized);fs.renameSync(tmp,DATA_FILE);let github={synced:false,reason:'missing_token'};try{github=await githubPutFile('data/game-data.json',Buffer.from(serialized,'utf8').toString('base64'),'Update SCHOOL_RAN game data');}catch(e){github={synced:false,error:e.message};}
       return send(res,200,{ok:true,savedAt:saved.updatedAt,githubSynced:github.synced,githubError:github.error||null,githubReason:github.reason||null,githubCommit:github.commit||null});
