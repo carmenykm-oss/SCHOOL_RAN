@@ -6,7 +6,7 @@
 <style>
 :root{--ink:#302b29;--cream:#f4e8c7;--gold:#e7bd68;--panel:#594633;--panel2:#806344;--blue:#4b7890;--red:#c65c50;--green:#6e9b58}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1e2d29;color:#fff;font-family:system-ui,"Noto Sans TC",sans-serif;touch-action:none}
-#game{position:relative;width:100vw;height:100dvh;min-height:520px;overflow:hidden;background:#78a85d;image-rendering:pixelated;user-select:none}
+#game{position:relative;width:100vw;height:100vh;height:100dvh;min-height:0;overflow:hidden;background:#78a85d;image-rendering:pixelated;user-select:none}
 .scene{position:absolute;inset:0;background-color:#83b96b;background-image:linear-gradient(0deg,transparent 24%,#6e9e5b 25%,#6e9e5b 26%,transparent 27%,transparent 74%,#6e9e5b 75%,#6e9e5b 76%,transparent 77%),linear-gradient(90deg,transparent 24%,#6e9e5b 25%,#6e9e5b 26%,transparent 27%,transparent 74%,#6e9e5b 75%,#6e9e5b 76%,transparent 77%);background-size:64px 64px}
 .path{position:absolute;left:0;top:42%;width:100%;height:25%;background:#d5c18e;border-top:5px solid #b69a69;border-bottom:5px solid #b69a69;box-shadow:inset 0 5px #ead8ad,inset 0 -5px #c7ad7b}
 .path:after{content:"";position:absolute;left:0;right:0;top:50%;border-top:3px dashed #b99e72}
@@ -61,7 +61,7 @@
 .quick button{width:39px;height:39px;border:2px solid #e8d3a0;border-radius:7px;background:#72563e;color:#fff1ca;font-size:18px;box-shadow:0 3px #3e3026}
 .toast{position:absolute;z-index:20;left:50%;top:43%;transform:translate(-50%,-50%);background:#46362b;border:3px solid #e5c987;padding:10px 16px;color:#fff0c7;font-weight:900;font-size:13px;box-shadow:0 4px #29211c;opacity:0;pointer-events:none;transition:opacity .15s}
 .toast.show{opacity:1}
-@media(min-width:700px){#game{max-width:480px;height:min(100dvh,900px);margin:auto;border-left:5px solid #4b3a2b;border-right:5px solid #4b3a2b}.topbar{left:12px;right:12px}.joy-area{left:22px}.action-area{right:34px}}
+@media(min-width:700px){#game{max-width:480px;height:min(100vh,900px);height:min(100dvh,900px);margin:auto;border-left:5px solid #4b3a2b;border-right:5px solid #4b3a2b}.topbar{left:12px;right:12px}.joy-area{left:22px}.action-area{right:52px}}
 @media(max-height:620px){.joy-area{width:108px;height:108px;bottom:25px}.joy-knob{width:45px;height:45px}.attack{width:66px;height:66px}.skill{width:48px;height:48px}.action-area .skill:nth-child(1){left:-82px;top:47px}.action-area .skill:nth-child(2){left:-89px;top:-32px}.action-area .skill:nth-child(3){left:-32px;top:-89px}.action-area .skill:nth-child(4){left:16px;top:-93px}}
 </style></head>
 <body><main id="game" aria-label="亂校園手機遊戲介面">
@@ -84,22 +84,22 @@
 <div class="toast" id="toast"></div></main>
 <script>
 const game=document.getElementById('game'),char=document.getElementById('character'),joy=document.getElementById('joy'),knob=document.getElementById('knob'),toast=document.getElementById('toast'),chatline=document.getElementById('chatline');
-let x=50,y=56,joyPointer=null,move={x:0,y:0},toastTimer;
+let x=50,y=56,joyPointer=null,joyVector={x:0,y:0},keyboardVector={x:0,y:0},move={x:0,y:0},toastTimer;\nfunction refreshMove(){let vx=joyVector.x+keyboardVector.x,vy=joyVector.y+keyboardVector.y,len=Math.hypot(vx,vy)||1;if(Math.hypot(vx,vy)>1){vx/=len;vy/=len}move={x:vx,y:vy}}
 function say(t){toast.textContent=t;toast.classList.add('show');chatline.textContent=t;clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),1050)}
 function render(){char.style.left=x+'%';char.style.top=y+'%';char.classList.toggle('moving',Math.abs(move.x)+Math.abs(move.y)>.1)}
 function moveCharacter(dx,dy){const r=game.getBoundingClientRect();x=Math.max(8,Math.min(92,x+dx/r.width*100));y=Math.max(28,Math.min(88,y+dy/r.height*100));render()}
-function joyUpdate(e){const r=joy.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy;const max=42,len=Math.hypot(dx,dy)||1;if(len>max){dx=dx/len*max;dy=dy/len*max}knob.style.left='calc(50% + '+dx+'px)';knob.style.top='calc(50% + '+dy+'px)';move={x:dx/max,y:dy/max}}
+function joyUpdate(e){const r=joy.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy;const max=42,len=Math.hypot(dx,dy)||1;if(len>max){dx=dx/len*max;dy=dy/len*max}knob.style.left='calc(50% + '+dx+'px)';knob.style.top='calc(50% + '+dy+'px)';joyVector={x:dx/max,y:dy/max};refreshMove()}
 joy.addEventListener('pointerdown',e=>{joyPointer=e.pointerId;joy.setPointerCapture(e.pointerId);joyUpdate(e)});
 joy.addEventListener('pointermove',e=>{if(e.pointerId===joyPointer)joyUpdate(e)});
-function joyEnd(){joyPointer=null;move={x:0,y:0};knob.style.left='50%';knob.style.top='50%';char.classList.remove('moving')}
+function joyEnd(){joyPointer=null;joyVector={x:0,y:0};refreshMove();knob.style.left='50%';knob.style.top='50%';char.classList.remove('moving')}
 joy.addEventListener('pointerup',joyEnd);joy.addEventListener('pointercancel',joyEnd);
 let last=0;function loop(t){if(t-last>28){if(Math.abs(move.x)+Math.abs(move.y)>.08)moveCharacter(move.x*2.1,move.y*2.1);last=t}requestAnimationFrame(loop)}requestAnimationFrame(loop);
 document.getElementById('attack').addEventListener('pointerdown',e=>{e.preventDefault();say('普通攻擊！');char.animate([{transform:'translate(-50%,-50%) rotate(-8deg)'},{transform:'translate(-50%,-50%) rotate(10deg)'},{transform:'translate(-50%,-50%) rotate(0)'}],{duration:220})});
 document.querySelectorAll('.skill').forEach((b,i)=>b.addEventListener('pointerdown',e=>{e.preventDefault();say('施放 '+b.dataset.skill+'！');b.classList.add('cooling');setTimeout(()=>b.classList.remove('cooling'),900)}));
 document.querySelectorAll('.quick button').forEach(b=>b.addEventListener('click',()=>say(b.dataset.msg)));
 const heldKeys=new Set();
-function syncKeyboardMove(){const left=heldKeys.has('a')||heldKeys.has('arrowleft'),right=heldKeys.has('d')||heldKeys.has('arrowright'),up=heldKeys.has('w')||heldKeys.has('arrowup'),down=heldKeys.has('s')||heldKeys.has('arrowdown');const kx=(right?1:0)-(left?1:0),ky=(down?1:0)-(up?1:0);if(kx||ky){const len=Math.hypot(kx,ky)||1;move={x:kx/len,y:ky/len}}else if(!joyPointer){move={x:0,y:0}}}
+function syncKeyboardMove(){const left=heldKeys.has('a')||heldKeys.has('arrowleft'),right=heldKeys.has('d')||heldKeys.has('arrowright'),up=heldKeys.has('w')||heldKeys.has('arrowup'),down=heldKeys.has('s')||heldKeys.has('arrowdown');const kx=(right?1:0)-(left?1:0),ky=(down?1:0)-(up?1:0),len=Math.hypot(kx,ky)||1;keyboardVector={x:kx/len,y:ky/len};if(!kx&&!ky)keyboardVector={x:0,y:0};refreshMove()}
 document.addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k)){e.preventDefault();heldKeys.add(k);syncKeyboardMove()}else if(k===' '&&!e.repeat){e.preventDefault();document.getElementById('attack').dispatchEvent(new Event('pointerdown',{cancelable:true}))}else if('1234'.includes(k)&&!e.repeat){document.querySelectorAll('.skill')[Number(k)-1].dispatchEvent(new Event('pointerdown',{cancelable:true}))}});
 document.addEventListener('keyup',e=>{heldKeys.delete(e.key.toLowerCase());syncKeyboardMove()});
-window.addEventListener('blur',()=>{heldKeys.clear();if(!joyPointer)move={x:0,y:0}});
+window.addEventListener('blur',()=>{heldKeys.clear();keyboardVector={x:0,y:0};refreshMove()});
 </script></body></html>
