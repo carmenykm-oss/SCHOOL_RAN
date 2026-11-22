@@ -52,17 +52,17 @@
 .skill{position:absolute;width:54px;height:54px;border-radius:50%;transform:translate(-50%,-50%);pointer-events:auto;touch-action:manipulation;background:linear-gradient(145deg,#83b4c7,#426b8a);border:3px solid #d9edee;box-shadow:inset 0 0 0 3px #35536b,0 4px #263b49;color:#fff;font-size:21px;text-shadow:1px 2px #294354;display:grid;place-items:center}
 .skill small{position:absolute;bottom:2px;font-size:8px;font-weight:900}
 .skill.cooling{filter:grayscale(.8);opacity:.72}.skill:active,.attack:active{filter:brightness(1.25);transform:translate(-50%,-50%) scale(.94)}
-/* 四個技能中心以普通攻擊中心為圓心，半徑 106px；角度 240°/290°/340°/390°，每格相差 50° */
+/* 四個技能鍵沿攻擊鍵左上方等角度圓弧排列；所有技能中心到攻擊中心的半徑相同 */
 .action-area .skill:nth-child(1){left:-91.8px;top:53px}
-.action-area .skill:nth-child(2){left:-99.6px;top:-36.3px}
-.action-area .skill:nth-child(3){left:-36.3px;top:-99.6px}
-.action-area .skill:nth-child(4){left:18.4px;top:-104.4px}
+.action-area .skill:nth-child(2){left:-104.4px;top:18.4px}
+.action-area .skill:nth-child(3){left:-68.1px;top:-81.2px}
+.action-area .skill:nth-child(4){left:0;top:-106px}
 .quick{position:absolute;z-index:6;right:10px;top:105px;display:flex;flex-direction:column;gap:6px}
 .quick button{width:39px;height:39px;border:2px solid #e8d3a0;border-radius:7px;background:#72563e;color:#fff1ca;font-size:18px;box-shadow:0 3px #3e3026}
 .toast{position:absolute;z-index:20;left:50%;top:43%;transform:translate(-50%,-50%);background:#46362b;border:3px solid #e5c987;padding:10px 16px;color:#fff0c7;font-weight:900;font-size:13px;box-shadow:0 4px #29211c;opacity:0;pointer-events:none;transition:opacity .15s}
 .toast.show{opacity:1}
 @media(min-width:700px){#game{max-width:480px;height:min(100vh,900px);height:min(100dvh,900px);margin:auto;border-left:5px solid #4b3a2b;border-right:5px solid #4b3a2b}.topbar{left:12px;right:12px}.joy-area{left:22px}.action-area{right:52px}}
-@media(max-height:620px){.joy-area{width:108px;height:108px;bottom:25px}.joy-knob{width:45px;height:45px}.attack{width:66px;height:66px}.skill{width:48px;height:48px}.action-area .skill:nth-child(1){left:-82px;top:47px}.action-area .skill:nth-child(2){left:-89px;top:-32px}.action-area .skill:nth-child(3){left:-32px;top:-89px}.action-area .skill:nth-child(4){left:16px;top:-93px}}
+@media(max-height:620px){.joy-area{width:108px;height:108px;bottom:25px}.joy-knob{width:45px;height:45px}.attack{width:66px;height:66px}.skill{width:48px;height:48px}.action-area .skill:nth-child(1){left:-83.1px;top:48px}.action-area .skill:nth-child(2){left:-94.6px;top:16.7px}.action-area .skill:nth-child(3){left:-61.7px;top:-73.5px}.action-area .skill:nth-child(4){left:0;top:-96px}}
 
 /* 橫向手機版：完整寬螢幕遊戲配置 */
 @media (orientation:landscape) and (min-width:600px){
