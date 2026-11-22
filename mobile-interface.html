@@ -93,6 +93,69 @@
 .action-area .skill:nth-child(4){left:14px;top:-81px}
 .chat{left:120px;font-size:9px}.exp{width:22%}.quick{top:66px}
 }
+
+/* 1.3.2: integrate the four-skill mobile MMORPG action cluster into 亂校園.
+   Four 52px skill buttons sit on a 102.4px radius from the attack centre.
+   Their centres are 70px apart, following the upper-left 8-to-12 o'clock arc. */
+.action-area{
+  position:absolute !important;right:18px !important;bottom:18px !important;
+  left:auto !important;top:auto !important;width:350px !important;height:300px !important;
+  pointer-events:none !important;z-index:9 !important;
+}
+.action-area .attack{
+  position:absolute !important;left:264px !important;top:174px !important;
+  right:auto !important;bottom:auto !important;transform:none !important;
+  width:86px !important;height:86px !important;border-radius:50% !important;
+  display:grid !important;place-items:center !important;z-index:3 !important;
+  font-size:34px !important;
+}
+.action-area .attack small{display:none !important}
+.action-area .skill{
+  position:absolute !important;width:52px !important;height:52px !important;
+  min-width:52px !important;max-width:52px !important;padding:0 !important;
+  transform:none !important;border-radius:50% !important;z-index:4 !important;
+  display:grid !important;place-items:center !important;overflow:hidden !important;
+  background:radial-gradient(circle at 35% 25%,#527c9d,#102238 76%) !important;
+  border:2px solid #bfd6e7 !important;
+  box-shadow:0 4px 14px #000a,inset 0 0 0 3px #ffffff20 !important;
+  color:#fff4cf !important;touch-action:manipulation !important;
+}
+.action-area #skill1{left:192.32px !important;top:242.2px !important}
+.action-area #skill2{left:180.16px !important;top:208.78px !important}
+.action-area #skill3{left:215.16px !important;top:112.58px !important}
+.action-area #skill4{left:281px !important;top:88.6px !important}
+.action-area .skill-icon{
+  display:block !important;font-size:28px !important;line-height:1 !important;
+  margin-top:4px !important;text-shadow:0 2px 4px #000 !important;
+}
+.action-area .skill kbd{
+  position:absolute !important;left:3px !important;top:3px !important;
+  display:grid !important;place-items:center !important;width:14px !important;height:14px !important;
+  padding:0 !important;border:1px solid #f1d18b !important;border-radius:50% !important;
+  background:#071321 !important;color:#ffe4a3 !important;
+  font:800 8px/1 Arial,sans-serif !important;z-index:5 !important;
+}
+.action-area .skill.cooling{filter:grayscale(.65) brightness(.72) !important;opacity:.82 !important}
+.action-area .skill.cooling:after{
+  content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,#07132155 0 18%,#071321a8 72%);
+  animation:skillCooldownPulse .9s linear forwards;
+}
+@keyframes skillCooldownPulse{from{opacity:.95}to{opacity:0}}
+.action-area .attack:active,.action-area .skill:active{filter:brightness(1.2) !important;transform:scale(.94) !important}
+@media(pointer:coarse),(max-width:760px){
+  .action-area{right:8px !important;bottom:8px !important;transform:scale(.88) !important;transform-origin:bottom right !important}
+}
+@media(max-width:430px){
+  .action-area{transform:scale(.76) !important}
+}
+@media(orientation:landscape) and (min-width:600px){
+  .action-area{right:18px !important;bottom:18px !important;transform:none !important}
+}
+@media(orientation:landscape) and (max-height:430px){
+  .action-area{right:8px !important;bottom:8px !important;transform:scale(.82) !important;transform-origin:bottom right !important}
+}
+
 </style></head>
 <body><main id="game" aria-label="亂校園手機遊戲介面">
 <div class="scene"><div class="school"><i class="window w1"></i><i class="window w2"></i><i class="window w3"></i><i class="window w4"></i></div><div class="path"></div><i class="tree t1"></i><i class="tree t2"></i><i class="tree t3"></i><i class="tree t4"></i><i class="flower f1"></i><i class="flower f2"></i></div>
@@ -105,10 +168,10 @@
 <div class="quick"><button data-msg="背包尚未開放">▣</button><button data-msg="角色資料尚未開放">♟</button><button data-msg="任務列表已開啟">☷</button></div>
 <div class="controls"><div class="joy-area" id="joy"><div class="joy-base"></div><div class="joy-knob" id="knob"></div><div class="joy-label">移動</div></div>
 <div class="action-area" id="action">
-<button class="skill" data-skill="技能一" aria-label="技能一">✦<small>1</small></button>
-<button class="skill" data-skill="技能二" aria-label="技能二">❖<small>2</small></button>
-<button class="skill" data-skill="技能三" aria-label="技能三">✧<small>3</small></button>
-<button class="skill" data-skill="技能四" aria-label="技能四">✹<small>4</small></button>
+<button class="skill" id="skill1" data-skill="技能一" aria-label="技能一"><span class="skill-icon">✦</span><kbd>1</kbd></button>
+<button class="skill" id="skill2" data-skill="技能二" aria-label="技能二"><span class="skill-icon">❖</span><kbd>2</kbd></button>
+<button class="skill" id="skill3" data-skill="技能三" aria-label="技能三"><span class="skill-icon">✧</span><kbd>3</kbd></button>
+<button class="skill" id="skill4" data-skill="技能四" aria-label="技能四"><span class="skill-icon">✹</span><kbd>4</kbd></button>
 <button class="attack" id="attack" aria-label="普通攻擊">⚔<small>攻擊</small></button>
 </div></div>
 <div class="toast" id="toast"></div></main>
