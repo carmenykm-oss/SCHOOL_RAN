@@ -27,6 +27,10 @@ npm start
 
 管理器會讀取 `GET /api/game-data`，新增／修改／刪除時會透過 `PUT /api/game-data` 寫回伺服器的 `data/game-data.json`。頁面上方／總覽會顯示伺服器連線狀態。不要直接以 file:// 開啟 HTML，必須經由 Node.js 伺服器使用。
 
+## DATA MANAGER 自動同步 GitHub
+
+管理器支援把 `data/game-data.json` 和怪物圖片自動提交至 GitHub `main`。首次使用前，請依照 [GitHub 自動同步設定指南](docs/GITHUB-AUTO-SYNC.md) 設定伺服器端 `GITHUB_TOKEN` 及 `DATA_MANAGER_KEY`。Token 只放在伺服器環境變數／本機 `.env`，不可放在前端或提交到 repository。GitHub Pages 本身不能執行上載 API；需要 Node.js 伺服器。
+
 ## 遊戲掉落結算
 
 遊戲判定怪物被擊敗時，呼叫：
