@@ -80,6 +80,31 @@ const server=http.createServer(async(req,res)=>{
       res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Access-Control-Allow-Origin':'*','Cache-Control':'public, max-age=300'});
       return res.end(JSON.stringify(guide));
     }
+    if(url.pathname==='/api/monster-style/status'&&req.method==='GET') return send(res,200,{configured:!!process.env.OPENAI_API_KEY,model:process.env.OPENAI_IMAGE_MODEL||'gpt-image-2'});
+    if(url.pathname==='/api/monster-style/convert'&&req.method==='POST'){
+      if(!process.env.OPENAI_API_KEY) return send(res,503,{error:'尚未設定 OPENAI_API_KEY。請在伺服器環境變數加入 API 金鑰；不要把金鑰貼在網頁或聊天中。'});
+      const input=await body(req);
+      const validImage=x=>x&&typeof x.data==='string'&&/^image\/(png|jpeg|webp)$/.test(x.mimeType)&&x.data.length<12e6;
+      if(!validImage(input.image)) return send(res,400,{error:'請提供 PNG、JPG 或 WEBP 怪物圖片（單張限制約 8 MB）。'});
+      if(input.reference&&!validImage(input.reference)) return send(res,400,{error:'人物參考圖格式不支援或檔案太大。'});
+      const prompt=String(input.prompt||'').slice(0,4000);
+      const form=new FormData();
+      form.append('model',process.env.OPENAI_IMAGE_MODEL||'gpt-image-2');
+      form.append('prompt',prompt+'\\n\\nUse the first image as the source monster to transform. If a second image is provided, use it only as the visual style reference. Preserve the monster identity and silhouette. Output one complete isolated character on a transparent background.');
+      form.append('size','1024x1024');
+      form.append('quality',process.env.OPENAI_IMAGE_QUALITY||'medium');
+      form.append('background','transparent');
+      form.append('output_format','png');
+      const toBlob=x=>new Blob([Buffer.from(x.data,'base64')],{type:x.mimeType});
+      form.append('image[]',toBlob(input.image),input.image.name||'monster.png');
+      if(input.reference) form.append('image[]',toBlob(input.reference),input.reference.name||'character-reference.png');
+      const upstream=await fetch('https://api.openai.com/v1/images/edits',{method:'POST',headers:{Authorization:'Bearer '+process.env.OPENAI_API_KEY},body:form,signal:AbortSignal.timeout(180000)});
+      const result=await upstream.json();
+      if(!upstream.ok) return send(res,upstream.status,{error:result.error&&result.error.message||'AI 圖像重繪失敗'});
+      const generated=result.data&&result.data[0]&&result.data[0].b64_json;
+      if(!generated) return send(res,502,{error:'AI 沒有回傳可用圖片。'});
+      return send(res,200,{ok:true,mimeType:'image/png',data:generated,model:process.env.OPENAI_IMAGE_MODEL||'gpt-image-2'});
+    }
     if(url.pathname==='/api/game-data'&&req.method==='GET') return send(res,200,readDB());
     if(url.pathname==='/api/game-data'&&req.method==='PUT'){
       const next=await body(req); const problem=validationError(next); if(problem) return send(res,400,{error:'資料格式錯誤：'+problem});
