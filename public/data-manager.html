@@ -76,7 +76,7 @@ const cfg={
  monsters:{title:'怪物管理',desc:'設定怪物 ID、圖片、戰鬥數值、掉落物、所屬地圖及出生位置。',singular:'怪物',cols:[['sprite','圖片'],['id','怪物 ID'],['name','名稱'],['category','分類'],['mapName','所屬地圖'],['level','等級'],['hp','HP'],['attack','攻擊'],['defense','防禦'],['exp','經驗值']],filter:'category'},
  equipment:{title:'裝備管理',desc:'管理可穿戴裝備、部位、稀有度及戰鬥屬性。',singular:'裝備',cols:[['name','名稱'],['category','分類'],['slot','部位'],['rarity','稀有度'],['level','需求等級'],['attack','攻擊'],['defense','防禦']],filter:'category'},
  items:{title:'道具管理',desc:'管理藥水、素材、任務物品及商店價格。',singular:'道具',cols:[['name','名稱'],['category','分類'],['type','類型'],['rarity','稀有度'],['amount','效果數值'],['price','售價']],filter:'category'},
- skills:{title:'技能管理',desc:'管理 ProjectR 技能資料、職業、靈性球、技能文書、學習條件及戰鬥效果。',singular:'技能',cols:[['name','名稱'],['job','職業'],['skillBranch','技能流派'],['level','角色需求等級'],['spiritBallRank','靈性球階級'],['skillRank','技能階級'],['scrollName','技能文書'],['mp','MP'],['cooldown','冷卻秒數'],['power','傷害倍率']],filter:'category'}
+ skills:{title:'技能管理',desc:'管理四職業技能、流派、前置技能、武器限制、各級數值及效果。',singular:'技能',cols:[['name','名稱'],['job','職業'],['skillBranch','技能流派'],['level','需求等級'],['type','類型'],['skillRank','技能階級'],['prerequisiteSkillName','前置技能'],['weaponRequirement','武器限制'],['specialEffectLabels','特殊效果'],['spiritBallRank','靈性球階級'],['scrollName','技能文書'],['mp','MP'],['cooldown','冷卻秒數']],filter:'category'}
 };
 function allItems(){return [...db.equipment.map(x=>({...x,_kind:'equipment'})),...db.items.map(x=>({...x,_kind:'items'}))]}
 function renderCounts(){for(const k of Object.keys(cfg)){document.getElementById('n-'+k).textContent=db[k].length;document.getElementById('s-'+k).textContent=db[k].length}}
